@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -12,12 +13,12 @@ import (
 func main() {
 	wd, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	copyFolder := filepath.Join(cacheDir, "lcp-copy")
@@ -26,17 +27,23 @@ func main() {
 	flagPaste := flag.BoolP("paste", "p", false, "paste")
 	flagClear := flag.BoolP("clear", "k", false, "clear")
 	flagList := flag.BoolP("list", "l", false, "list")
+	flagQuiet := flag.BoolP("quiet", "q", false, "quiet")
 
 	flag.Parse()
 
+	if *flagQuiet {
+		log.SetOutput(io.Discard)
+	}
+
 	if *flagClear {
 		os.RemoveAll(copyFolder)
+		log.Println("cleared")
 		os.Exit(0)
 	}
 
 	if *flagList {
 		if _, err := os.Stat(copyFolder); os.IsNotExist(err) {
-			panic("nothing to list")
+			log.Fatal("nothing to list")
 		}
 
 		var files []string
@@ -50,7 +57,7 @@ func main() {
 			return nil
 		})
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		for _, file := range files {
 			println(file)
@@ -59,45 +66,48 @@ func main() {
 	}
 
 	if *flagCopy && *flagPaste {
-		panic("copy and paste flags cannot be set at the same time")
+		log.Fatal("copy and paste flags cannot be set at the same time")
 	}
 
 	if !(*flagCopy || *flagPaste) {
-		panic("must set one of copy or paste flags")
+		log.Fatal("must set one of copy or paste flags")
 	}
 
 	if *flagCopy {
 		if flag.NArg() == 0 {
-			panic("nothing to copy provided")
+			log.Fatal("nothing to copy provided")
 		}
 
 		if _, err := os.Stat(copyFolder); os.IsExist(err) {
 			if err := os.RemoveAll(copyFolder); err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 		}
 
 		if _, err := os.Stat(copyFolder); os.IsNotExist(err) {
 			if err := os.Mkdir(copyFolder, 0755); err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 		}
 
-		for _, file := range flag.Args() {
+		for q, file := range flag.Args() {
 			if err := Copy(file, filepath.Join(copyFolder, filepath.Base(file))); err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
+			log.Println(q, "copied:", file)
 		}
 	}
 
 	if *flagPaste {
 		if _, err := os.Stat(copyFolder); os.IsNotExist(err) {
-			panic("nothing to paste")
+			log.Fatal("nothing to paste")
 		}
 
 		if Copy(copyFolder, wd) != nil {
-			panic(err)
+			log.Fatal(err)
 		}
+
+		log.Println("pasted")
 	}
 }
 

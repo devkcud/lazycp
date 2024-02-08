@@ -16,3 +16,4 @@ im not saying it doesnt exist, im just saying that i couldnt find anything like 
 `lcp -p` to paste  
 `lcp -k` to clear """clipboard"""  
 `lcp -l` to list files in clipboard
+`lcp -q` to do things quietly (shhhhhhhhh)
