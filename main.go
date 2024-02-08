@@ -90,7 +90,7 @@ func main() {
 			log.Fatal("nothing provided to copy")
 		}
 
-		if _, err := os.Stat(copyFolder); os.IsExist(err) {
+		if _, err := os.Stat(copyFolder); err == nil {
 			if err := os.RemoveAll(copyFolder); err != nil {
 				log.Fatal(err)
 			}
