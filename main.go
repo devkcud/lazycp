@@ -54,26 +54,7 @@ func main() {
 	}
 
 	if *flagList {
-		if _, err := os.Stat(copyFolder); os.IsNotExist(err) {
-			log.Fatal("nothing to list")
-		}
-
-		var files []string
-		err := filepath.Walk(copyFolder, func(path string, info fs.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if !info.IsDir() {
-				files = append(files, path)
-			}
-			return nil
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, file := range files {
-			fmt.Println(file)
-		}
+		ListFiles(copyFolder)
 		os.Exit(0)
 	}
 
@@ -82,7 +63,7 @@ func main() {
 	}
 
 	if !(*flagCopy || *flagPaste) {
-		log.Fatal("must use either copy or paste flags")
+		ListFiles(copyFolder)
 	}
 
 	if *flagCopy {
@@ -120,6 +101,29 @@ func main() {
 		}
 
 		log.Println("pasted")
+	}
+}
+
+func ListFiles(copyFolder string) {
+	if _, err := os.Stat(copyFolder); os.IsNotExist(err) {
+		log.Fatal("nothing to list")
+	}
+
+	var files []string
+	err := filepath.Walk(copyFolder, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, file := range files {
+		fmt.Println(file)
 	}
 }
 
