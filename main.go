@@ -23,11 +23,12 @@ func main() {
 
 	copyFolder := filepath.Join(cacheDir, "lcp-copy")
 
-	flagCopy := flag.BoolP("copy", "c", false, "copy")
-	flagPaste := flag.BoolP("paste", "p", false, "paste")
-	flagClear := flag.BoolP("clear", "k", false, "clear")
-	flagList := flag.BoolP("list", "l", false, "list")
-	flagQuiet := flag.BoolP("quiet", "q", false, "quiet")
+	flag.ErrHelp = nil
+	flagCopy := flag.BoolP("copy", "c", false, "copy files")
+	flagPaste := flag.BoolP("paste", "p", false, "paste the files you copied")
+	flagClear := flag.BoolP("clear", "k", false, "clear the clipboard")
+	flagList := flag.BoolP("list", "l", false, "list the files in the clipboard")
+	flagQuiet := flag.BoolP("quiet", "q", false, "disable all logging")
 
 	flag.Parse()
 
