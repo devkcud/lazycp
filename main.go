@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"io/fs"
 	"log"
@@ -23,6 +24,16 @@ func main() {
 
 	copyFolder := filepath.Join(cacheDir, "lcp-copy")
 
+	flag.Usage = func() {
+		flag.PrintDefaults()
+		fmt.Println()
+		fmt.Println(`examples:
+  lcp -c Makefile go.mod go.sum
+  lcp -l
+  lcp -p -q
+  lcp -k`)
+		os.Exit(0)
+	}
 	flag.ErrHelp = nil
 	flagCopy := flag.BoolP("copy", "c", false, "copy files")
 	flagPaste := flag.BoolP("paste", "p", false, "paste the files you copied")
@@ -61,7 +72,7 @@ func main() {
 			log.Fatal(err)
 		}
 		for _, file := range files {
-			println(file)
+			fmt.Println(file)
 		}
 		os.Exit(0)
 	}
@@ -71,12 +82,12 @@ func main() {
 	}
 
 	if !(*flagCopy || *flagPaste) {
-		log.Fatal("must set one of copy or paste flags")
+		log.Fatal("must use either copy or paste flags")
 	}
 
 	if *flagCopy {
 		if flag.NArg() == 0 {
-			log.Fatal("nothing to copy provided")
+			log.Fatal("nothing provided to copy")
 		}
 
 		if _, err := os.Stat(copyFolder); os.IsExist(err) {
@@ -95,7 +106,7 @@ func main() {
 			if err := Copy(file, filepath.Join(copyFolder, filepath.Base(file))); err != nil {
 				log.Fatal(err)
 			}
-			log.Println(q, "copied:", file)
+			log.Println(q+1, "copied:", file)
 		}
 	}
 
